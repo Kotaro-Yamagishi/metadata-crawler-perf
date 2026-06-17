@@ -1,0 +1,36 @@
+services:
+  mysql-source:
+    image: mysql:8.0
+    container_name: metadata-mysql-source
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: catalog_init
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-source-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: metadata-crawler-app
+    depends_on:
+      mysql-source:
+        condition: service_healthy
+    environment:
+      APP_SOURCE_DATASOURCE_URL: jdbc:mysql://mysql-source:3306?useSSL=false&allowPublicKeyRetrieval=true
+      APP_SOURCE_DATASOURCE_USERNAME: root
+      APP_SOURCE_DATASOURCE_PASSWORD: rootpass
+      APP_CATALOG_DATASOURCE_URL: jdbc:h2:file:/app/data/catalog;MODE=MySQL;DB_CLOSE_DELAY=-1
+    ports:
+      - "8080:8080"
+    volumes:
+      - catalog-data:/app/data
+
+volumes:
+  mysql-source-data:
+  catalog-data:

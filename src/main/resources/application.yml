@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: metadata-crawler-perf
+
+app:
+  source:
+    datasource:
+      url: ${APP_SOURCE_DATASOURCE_URL:jdbc:mysql://localhost:3306?useSSL=false&allowPublicKeyRetrieval=true}
+      username: ${APP_SOURCE_DATASOURCE_USERNAME:root}
+      password: ${APP_SOURCE_DATASOURCE_PASSWORD:rootpass}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  catalog:
+    datasource:
+      url: ${APP_CATALOG_DATASOURCE_URL:jdbc:h2:file:./data/catalog;MODE=MySQL;DB_CLOSE_DELAY=-1}
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.example.metadatacrawler: INFO
+
+# 起動時 Webhook タイムアウトを短く（モック呼び出しが詰まらないように）
+spring:
+  mvc:
+    async:
+      request-timeout: 60000

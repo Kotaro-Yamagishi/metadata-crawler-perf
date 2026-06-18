@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CrawlerService {
@@ -62,22 +63,26 @@ public class CrawlerService {
             long schemaId = catalogWriter.insertSchema(crawlId, schemaName, now);
             summarySchemas++;
 
-            // Step 0: 同じ schema のテーブル一覧を再度取得
+            // Step 1: スキーマ単位でメタデータを一括取得（IN句・JOIN相当）
             List<TableMetadata> tables = sourceClient.listTables(schemaName);
+            Map<String, List<ColumnMetadata>> columnsByTable = sourceClient.listColumnsBySchema(schemaName);
+            Map<String, List<ForeignKeyMetadata>> fksByTable = sourceClient.listForeignKeysBySchema(schemaName);
+            Map<String, List<IndexMetadata>> indexesByTable = sourceClient.listIndexesBySchema(schemaName);
+
             for (TableMetadata table : tables) {
                 long tableId = catalogWriter.insertTable(schemaId, table);
                 summaryTables++;
 
-                // Step 0: テーブル単位の N+1 クエリ
-                for (ColumnMetadata col : sourceClient.listColumns(schemaName, table.tableName())) {
+                // 取得済みデータをテーブル名で引いて INSERT（書き込み側はナイーブのまま）
+                for (ColumnMetadata col : columnsByTable.getOrDefault(table.tableName(), List.of())) {
                     catalogWriter.insertColumn(tableId, col);
                     summaryCols++;
                 }
-                for (ForeignKeyMetadata fk : sourceClient.listForeignKeys(schemaName, table.tableName())) {
+                for (ForeignKeyMetadata fk : fksByTable.getOrDefault(table.tableName(), List.of())) {
                     catalogWriter.insertForeignKey(tableId, fk);
                     summaryFks++;
                 }
-                for (IndexMetadata idx : sourceClient.listIndexes(schemaName, table.tableName())) {
+                for (IndexMetadata idx : indexesByTable.getOrDefault(table.tableName(), List.of())) {
                     catalogWriter.insertIndex(tableId, idx);
                     summaryIdx++;
                 }

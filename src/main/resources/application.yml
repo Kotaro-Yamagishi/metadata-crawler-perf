@@ -1,6 +1,9 @@
 spring:
   application:
     name: metadata-crawler-perf
+  mvc:
+    async:
+      request-timeout: 60000
 
 app:
   source:
@@ -22,9 +25,3 @@ server:
 logging:
   level:
     com.example.metadatacrawler: INFO
-
-# 起動時 Webhook タイムアウトを短く（モック呼び出しが詰まらないように）
-spring:
-  mvc:
-    async:
-      request-timeout: 60000

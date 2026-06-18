@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -52,21 +53,33 @@ public class SourceMetadataClient {
         );
     }
 
-    // Step 0: テーブル1つにつき1クエリ → N+1
+    // Step 0: 本当に酷いナイーブ実装
+    // カラム名一覧を取得 → 各カラムごとに詳細を別クエリで取得（カラム単位 N+1）
     public List<ColumnMetadata> listColumns(String schemaName, String tableName) {
-        return sourceJdbc.query(
-            "SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COLUMN_COMMENT, ORDINAL_POSITION " +
-            "FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? ORDER BY ORDINAL_POSITION",
-            (rs, i) -> new ColumnMetadata(
-                schemaName, tableName,
-                rs.getString("COLUMN_NAME"),
-                rs.getString("DATA_TYPE"),
-                "YES".equalsIgnoreCase(rs.getString("IS_NULLABLE")),
-                rs.getString("COLUMN_COMMENT"),
-                rs.getInt("ORDINAL_POSITION")
-            ),
-            schemaName, tableName
+        List<String> columnNames = sourceJdbc.queryForList(
+            "SELECT COLUMN_NAME FROM information_schema.COLUMNS " +
+            "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? ORDER BY ORDINAL_POSITION",
+            String.class, schemaName, tableName
         );
+
+        List<ColumnMetadata> result = new ArrayList<>(columnNames.size());
+        for (String col : columnNames) {
+            ColumnMetadata meta = sourceJdbc.queryForObject(
+                "SELECT DATA_TYPE, IS_NULLABLE, COLUMN_COMMENT, ORDINAL_POSITION " +
+                "FROM information_schema.COLUMNS " +
+                "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?",
+                (rs, i) -> new ColumnMetadata(
+                    schemaName, tableName, col,
+                    rs.getString("DATA_TYPE"),
+                    "YES".equalsIgnoreCase(rs.getString("IS_NULLABLE")),
+                    rs.getString("COLUMN_COMMENT"),
+                    rs.getInt("ORDINAL_POSITION")
+                ),
+                schemaName, tableName, col
+            );
+            result.add(meta);
+        }
+        return result;
     }
 
     // Step 0: テーブル1つにつき1クエリ → N+1

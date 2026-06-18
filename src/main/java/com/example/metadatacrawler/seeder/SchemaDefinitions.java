@@ -15,7 +15,7 @@ public final class SchemaDefinitions {
 
             new SchemaDefinition(
                     "user_mgmt",
-                    80,
+                    150,
                     List.of(
                             "users", "user_profiles", "roles", "permissions", "role_permissions",
                             "user_roles", "sessions", "login_attempts", "password_resets",
@@ -32,7 +32,7 @@ public final class SchemaDefinitions {
 
             new SchemaDefinition(
                     "project_mgmt",
-                    180,
+                    250,
                     List.of(
                             "projects", "project_members", "tasks", "subtasks", "milestones",
                             "comments", "attachments", "task_assignments", "task_dependencies",
@@ -51,7 +51,7 @@ public final class SchemaDefinitions {
 
             new SchemaDefinition(
                     "crm",
-                    90,
+                    160,
                     List.of(
                             "customers", "customer_addresses", "customer_contacts", "leads",
                             "opportunities", "deals", "activities", "campaigns",
@@ -69,7 +69,7 @@ public final class SchemaDefinitions {
 
             new SchemaDefinition(
                     "billing",
-                    70,
+                    130,
                     List.of(
                             "customers", "subscriptions", "subscription_items", "products",
                             "prices", "invoices", "invoice_items", "payments", "payment_methods",
@@ -87,7 +87,7 @@ public final class SchemaDefinitions {
 
             new SchemaDefinition(
                     "analytics",
-                    100,
+                    170,
                     List.of(
                             "events", "event_properties", "sessions", "page_views",
                             "user_journeys", "funnels", "funnel_steps", "experiments",
@@ -106,7 +106,7 @@ public final class SchemaDefinitions {
 
             new SchemaDefinition(
                     "integration",
-                    60,
+                    110,
                     List.of(
                             "webhooks", "webhook_deliveries", "api_keys", "oauth_clients",
                             "oauth_tokens", "external_connections", "sync_jobs",
@@ -124,7 +124,7 @@ public final class SchemaDefinitions {
 
             new SchemaDefinition(
                     "inventory",
-                    110,
+                    180,
                     List.of(
                             "products", "product_variants", "warehouses", "locations",
                             "stocks", "stock_movements", "purchase_orders",
@@ -143,7 +143,7 @@ public final class SchemaDefinitions {
 
             new SchemaDefinition(
                     "hr",
-                    80,
+                    150,
                     List.of(
                             "employees", "departments", "positions", "employments",
                             "evaluations", "goals", "feedback", "skills", "employee_skills",

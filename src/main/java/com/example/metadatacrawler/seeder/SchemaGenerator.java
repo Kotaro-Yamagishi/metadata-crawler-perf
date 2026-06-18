@@ -35,7 +35,7 @@ public final class SchemaGenerator {
     private static final int FK_HEAVY_COUNT = 5;
 
     /** カラム多めテーブルの件数（ベーステーブルの末尾N個） */
-    private static final int COLUMN_HEAVY_COUNT = 3;
+    private static final int COLUMN_HEAVY_COUNT = 8;
 
     /** FK多めテーブルのFKカラム数 */
     private static final int FK_HEAVY_MIN = 8;

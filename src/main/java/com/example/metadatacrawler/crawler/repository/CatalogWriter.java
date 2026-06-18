@@ -61,13 +61,21 @@ public class CatalogWriter {
         return kh.getKey().longValue();
     }
 
-    // Step 0: 1件ずつ INSERT
+    // Step 0: 本当に酷いナイーブ実装
+    // INSERT のたびに COUNT で書き込み確認（実用上は完全に不要、N+1 INSERT を倍に重くするだけ）
     public void insertColumn(long tableId, ColumnMetadata col) {
         catalogJdbc.update(
             "INSERT INTO catalog_columns (table_id, column_name, data_type, is_nullable, column_comment, ordinal_position) " +
             "VALUES (?, ?, ?, ?, ?, ?)",
             tableId, col.columnName(), col.dataType(), col.nullable(), col.columnComment(), col.ordinalPosition()
         );
+        Integer count = catalogJdbc.queryForObject(
+            "SELECT COUNT(*) FROM catalog_columns WHERE table_id = ? AND column_name = ?",
+            Integer.class, tableId, col.columnName()
+        );
+        if (count == null || count < 1) {
+            throw new IllegalStateException("Insert verification failed for column: " + col.columnName());
+        }
     }
 
     public void insertForeignKey(long fromTableId, ForeignKeyMetadata fk) {
